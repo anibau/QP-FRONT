@@ -1,0 +1,29 @@
+/*Actions controlador por el saga */
+export const SHOW_MODALS_LOADING = 'SHOW_MODALS_LOADING';
+export const SIGN_IN = 'SIGN_IN';
+export const SIGN_UP = 'SIGN_UP';
+export const SIGN_OUT = 'SIGN_OUT';
+export const RECOVER_PASSWORD = 'RECOVER_PASSWORD';
+export const SIGN_UP_SOCIAL = 'SIGN_UP_SOCIAL';
+/*Actions controlador por el reducer */
+export const SAVE_DATA = 'SAVE_DATA';
+export const CLEAR_DATA = 'CLEAR_DATA';
+export const CHANGE_GPS_VISIBILITY = 'CHANGE_GPS_VISIBILITY';
+export const ASK_GPS_PERMISSION = 'ASK_GPS_PERMISSION';
+export const CHANGE_PARKING_CTRL_VISIBILITY = 'CHANGE_PARKING_CTRL_VISIBILITY';
+export const SAVE_TOKEN_STATUS = 'SAVE_TOKEN_STATUS';
+export const SET_READY = 'SET_READY';
+export const UPDATE_PROFILE = 'UPDATE_PROFILE';
+export const SETTINGS_SHEET_VISIBILITY = 'SETTINGS_SHEET_VISIBILITY';
+export const FETCHING_DATA = 'FETCHING_DATA';
+export const SET_ADDRESS = 'SET_ADDRESS';
+export const SAVE_PRODUCTS = 'SAVE_PRODUCTS';
+export const SAVE_PAYMENT_SUCCESS = 'SAVE_PAYMENT_SUCCESS';
+export const SAVE_STORES = 'SAVE_STORES';
+export const CLEAN_PRODUCTS = 'CLEAN_PRODUCTS';
+export const CHANGING_TOKEN = 'CHANGING_TOKEN';
+export const OPEN_SETTINGS = 'OPEN_SETTINGS';
+export const CHANGE_CONFIRM_CARD_VISIBILITY = 'CHANGE_CONFIRM_CARD_VISIBILITY';
+export const SAVE_CARDS = 'SAVE_CARDS';
+export const SAVE_ITEMS = 'SAVE_ITEMS';
+export const SAVE_DETAILS = 'SAVE_DETAILS';

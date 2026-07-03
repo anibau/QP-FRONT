@@ -1,0 +1,368 @@
+import { Platform } from 'react-native';
+import { getAuth, signOut } from 'firebase/auth';
+import { firebaseApp } from '../config/firebase';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AUTH_ASYNCSTORAGE_KEY } from '../config/constants';
+import axios from 'axios';
+
+let appleAuth = null;
+
+// 👇 Solo se importa en iOS real
+if (Platform.OS === 'ios') {
+  appleAuth = require('@invertase/react-native-apple-authentication').appleAuth;
+}
+
+const auth = getAuth(firebaseApp);
+
+/**
+ * Tests de verificación post-migración Firebase Auth Web SDK
+ * Ejecutar después de configurar .env.local con credenciales
+ */
+
+export const verifyFirebaseInitialization = async () => {
+  try {
+    console.log('🔍 Verificando inicialización de Firebase...');
+    
+    if (!firebaseApp) {
+      throw new Error('firebaseApp no está inicializado');
+    }
+    
+    if (!auth) {
+      throw new Error('auth no está inicializado');
+    }
+    
+    console.log('✅ Firebase Web SDK inicializado correctamente');
+    console.log('   Project ID:', firebaseApp?.options?.projectId);
+    console.log('   Auth Domain:', firebaseApp?.options?.authDomain);
+    
+    return {
+      success: true,
+      message: 'Firebase Web SDK inicializado correctamente',
+    };
+  } catch (error) {
+    console.error('❌ Error al verificar Firebase:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Test de Google Sign-In
+ */
+export const testGoogleSignIn = async () => {
+  try {
+    console.log('🔍 Testando Google Sign-In...');
+    
+    // Verificar servicios disponibles
+    const hasServices = await GoogleSignin.hasPlayServices();
+    if (!hasServices) {
+      throw new Error('Google Play Services no disponible');
+    }
+    
+    console.log('✅ Google Play Services disponible');
+    
+    // Verificar si ya hay sesión activa
+    const isSignedIn = await GoogleSignin.isSignedIn();
+    if (isSignedIn) {
+      await GoogleSignin.signOut();
+    }
+    
+    // Intentar login
+    console.log('   Iniciando Google Sign-In...');
+    const userInfo = await GoogleSignin.signIn();
+    
+    console.log('✅ Google Sign-In exitoso');
+    console.log('   Email:', userInfo.user?.email);
+    console.log('   Display Name:', userInfo.user?.name);
+    console.log('   ID Token:', userInfo.idToken ? '✅ Presente' : '❌ No disponible');
+    
+    // Sign out
+    await GoogleSignin.signOut();
+    
+    return {
+      success: true,
+      message: 'Google Sign-In funciona correctamente',
+      user: {
+        email: userInfo.user?.email,
+        name: userInfo.user?.name,
+      },
+    };
+  } catch (error) {
+    console.error('❌ Error en Google Sign-In:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Test de Facebook Login
+ */
+export const testFacebookLogin = async () => {
+  try {
+    console.log('🔍 Testando Facebook Login...');
+    
+    // Intentar login
+    console.log('   Iniciando Facebook Login...');
+    const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+    
+    if (result.isCancelled) {
+      return {
+        success: false,
+        error: 'Login cancelado por usuario',
+      };
+    }
+    
+    // Obtener access token
+    const tokenData = await AccessToken.getCurrentAccessToken();
+    
+    if (!tokenData) {
+      throw new Error('No se pudo obtener Access Token');
+    }
+    
+    console.log('✅ Facebook Login exitoso');
+    console.log('   Access Token:', tokenData.accessToken ? '✅ Presente' : '❌ No disponible');
+    console.log('   Token Permissions:', tokenData.permissions?.join(', '));
+    
+    // Logout
+    LoginManager.logOut();
+    
+    return {
+      success: true,
+      message: 'Facebook Login funciona correctamente',
+      tokenPresent: !!tokenData.accessToken,
+    };
+  } catch (error) {
+    console.error('❌ Error en Facebook Login:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Test de Apple Sign-In (iOS only)
+ */
+export const testAppleSignIn = async () => {
+  try {
+    console.log('🔍 Testando Sign in with Apple (iOS only)...');
+
+    if (Platform.OS !== 'ios') {
+      return {
+        success: false,
+        skipped: true,
+        error: 'Sign in with Apple solo está disponible en iOS',
+      };
+    }
+
+    if (!appleAuth || !appleAuth.isSupported) {
+      return {
+        success: false,
+        error: 'Sign in with Apple no soportado en este dispositivo',
+      };
+    }
+
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      requestedScopes: [appleAuth.Scope.EMAIL, appleAuth.Scope.FULL_NAME],
+    });
+
+    if (!appleAuthRequestResponse.identityToken) {
+      throw new Error('No identity token retornado por Apple');
+    }
+
+    console.log('✅ Sign in with Apple exitoso');
+
+    return {
+      success: true,
+      message: 'Sign in with Apple funciona correctamente',
+      tokenPresent: true,
+    };
+  } catch (error) {
+    console.error('❌ Error en Apple Sign-In:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Test de almacenamiento de tokens en AsyncStorage
+ */
+export const testTokenStorage = async () => {
+  try {
+    console.log('🔍 Testando almacenamiento de tokens en AsyncStorage...');
+    
+    const testToken = 'test-token-' + Date.now();
+    
+    // Guardar
+    await AsyncStorage.setItem(AUTH_ASYNCSTORAGE_KEY, testToken);
+    console.log('   ✅ Token guardado');
+    
+    // Recuperar
+    const storedToken = await AsyncStorage.getItem(AUTH_ASYNCSTORAGE_KEY);
+    
+    if (storedToken !== testToken) {
+      throw new Error('Token no coincide después de almacenamiento');
+    }
+    
+    console.log('✅ AsyncStorage funciona correctamente');
+    
+    // Limpiar
+    await AsyncStorage.removeItem(AUTH_ASYNCSTORAGE_KEY);
+    
+    return {
+      success: true,
+      message: 'AsyncStorage funciona correctamente',
+    };
+  } catch (error) {
+    console.error('❌ Error en AsyncStorage:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Test de conectividad con backend API
+ */
+export const testBackendConnectivity = async (apiUrl) => {
+  try {
+    console.log('🔍 Testando conectividad con Backend API...');
+    console.log('   URL:', apiUrl);
+    
+    const response = await axios.get(apiUrl, {
+      timeout: 5000,
+    });
+    
+    console.log('✅ Backend accesible');
+    console.log('   Status:', response.status);
+    
+    return {
+      success: true,
+      message: 'Backend API accesible',
+      status: response.status,
+    };
+  } catch (error) {
+    console.error('❌ Error conectando con Backend:', error);
+    return {
+      success: false,
+      error: error.message,
+    };
+  }
+};
+
+/**
+ * Ejecutar todos los tests
+ */
+export const runAllTests = async (apiUrl) => {
+  console.log('🚀 Ejecutando suite de tests - Firebase Auth Web SDK');
+  console.log('======================================================');
+  console.log('');
+  
+  const results = {
+    firebaseInit: await verifyFirebaseInitialization(),
+    tokenStorage: await testTokenStorage(),
+    backendConnectivity: apiUrl ? await testBackendConnectivity(apiUrl) : { skipped: true },
+  };
+  
+  console.log('');
+  console.log('📊 Resumen de Tests:');
+  console.log('======================================================');
+  
+  let passed = 0;
+  let failed = 0;
+  let skipped = 0;
+  
+  Object.entries(results).forEach(([testName, result]) => {
+    if (result.skipped) {
+      console.log(`⏭️  ${testName}: Skipped`);
+      skipped++;
+    } else if (result.success) {
+      console.log(`✅ ${testName}: Passed`);
+      passed++;
+    } else {
+      console.log(`❌ ${testName}: Failed - ${result.error}`);
+      failed++;
+    }
+  });
+  
+  console.log('');
+  console.log(`Resultados: ${passed} passed, ${failed} failed, ${skipped} skipped`);
+  console.log('');
+  
+  return {
+    totalTests: passed + failed + skipped,
+    passed,
+    failed,
+    skipped,
+    results,
+    allTestsPassed: failed === 0,
+  };
+};
+
+/**
+ * Test interactivo para verificar credenciales de Firebase
+ */
+export const verifyFirebaseConfig = () => {
+  console.log('🔐 Verificando configuración de Firebase');
+  console.log('');
+  
+  const config = firebaseApp?.options;
+  
+  if (!config) {
+    console.error('❌ No se pudo cargar configuración de Firebase');
+    return false;
+  }
+  
+  const requiredFields = [
+    'apiKey',
+    'authDomain',
+    'projectId',
+    'storageBucket',
+    'messagingSenderId',
+    'appId',
+  ];
+  
+  let allFieldsPresent = true;
+  
+  requiredFields.forEach((field) => {
+    const value = config[field];
+    if (value) {
+      console.log(`✅ ${field}: ${value.substring(0, 20)}...`);
+    } else {
+      console.log(`❌ ${field}: FALTANTE`);
+      allFieldsPresent = false;
+    }
+  });
+  
+  console.log('');
+  
+  if (allFieldsPresent) {
+    console.log('✅ Todos los campos de configuración están presentes');
+  } else {
+    console.log('❌ Faltan campos en la configuración');
+    console.log('   → Verificar .env.local y variables de entorno');
+  }
+  
+  return allFieldsPresent;
+};
+
+export default {
+  verifyFirebaseInitialization,
+  testGoogleSignIn,
+  testFacebookLogin,
+  testAppleSignIn,
+  testTokenStorage,
+  testBackendConnectivity,
+  runAllTests,
+  verifyFirebaseConfig,
+};

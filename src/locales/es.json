@@ -1,0 +1,66 @@
+{
+    "common": {
+        "loading": "Cargando",
+        "ok": "Ok",
+        "accept": "Aceptar",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "continue": "Continuar",
+        "finish": "Finalizar",
+        "get_out": "Salir"
+    },
+    "inputs":{
+        "email_input": "Correo electrónico",
+        "password_input": "Contraseña",
+        "document_input": "Nro. de documento",
+        "birthday_input": "Fecha de nacimiento"
+    },
+    "pages": {
+        "sign_in":{
+            "title" : "Compra en tus tiendas favoritas",
+            "subtitle": "Más fácil, rápido y seguro",
+            "error_name_empty": "El nombre no puede estar vacío",
+            "error_password_empty": "La contraseña no puede estar vacía",
+            "error_password_malformed": "La contraseña debe contener entre 8 a 20 caracteres alfanumericos",
+            "error_password_number_lack": "La contraseña debe contener entre 8 a 20 caracteres alfanumericos",
+            "enter_button": "Ingresar",
+            "remember": "Recordar mi cuenta",
+            "sign_up_button": "Crea una cuenta",
+            "social_sign_up": "Ingresar con redes sociales",
+            "recover_password": "¿Olvidaste tu contraseña? Recupérala aquí"
+        },
+        "sign_up":{
+            "error_phone_empty": "El número de teléfono no puede estar vacío",
+            "error_phone_malformed": "El número de teléfono es inválido",
+            "error_email_empty": "El correo no puede estar vacío",
+            "error_email_malformed": "El correo ingresado es inválido",
+            "error_birthday_empty": "Seleccione una fecha de nacimiento",
+            "error_doc_number_empty": "Escriba un número de documento",
+            "error_doc_type_empty": "Seleccione un tipo de documento",
+            "error_doc_number_malformed": "Número de documento inválido",
+            "error_names_empty": "Sus nombres no pueden estar vacíos",
+            "error_last_names_empty": "Sus apellidos no pueden estar vacíos",
+            "error_passwords_mismatch": "Las contraseñas no coinciden"
+        },
+        "recover_password":{
+            "header": "Recuperar contraseña",
+            "title": "Ingresa tus datos",
+            "subtitle": "Ingresa los siguientes datos para recuperar tu contraseña",
+            "message": "Se enviará un correo de validación asociado a esta cuenta",
+            "button": "Validar datos",
+            "success": "Correo generado correctamente, verifique su lista de correos"
+        }
+    },
+    "components": {
+        "birth_date_title_modal": "Escoja su fecha de nacimiento"
+    },
+    "error": {
+        "generic": "Ocurrió algo, por favor vuelva a intentarlo"
+    },
+    "register": {
+        "success": "Sus datos han sido registrados correctamente"
+    },
+    "keyboard": {
+        "done": "Listo"
+    }
+}

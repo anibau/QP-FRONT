@@ -1,0 +1,18 @@
+{
+    "common": {
+        "loading": "Cargando",
+        "ok": "Ok",
+        "accept": "Aceptar",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "continue": "Continuar",
+        "finish": "Finalizar",
+        "get_out": "Salir"
+    },
+    "components": {
+        "birth_date_title_modal": "Escoja su fecha de nacimiento"
+    },
+    "keyboard": {
+        "done": "Ready"
+    }
+}
